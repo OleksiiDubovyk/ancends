@@ -1,0 +1,146 @@
+---
+title: "Simple Analysis of Community Structure"
+author: "Oleksii Dubovyk"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Simple Analysis of Community Structure}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Investigation of environmental factors predicting community structure is a common goal in ecological research. This problem can be partly solved by applying linear (or non-linear) models to some community parameters, e. g. diversity indices, simple parameters like species number etc. ^[Ciach M, Frohlich A (2017) Habitat type, food resources, noise and light pollution explain the species composition, abundance and stability of a winter bird assemblage in an urban environment. Urban Ecosyst 20(3): 547-559], but explaining the whole community structure with linear models is more complicated, since it is hard to describe the whole structure by one variable. However, the ability to describe the structure of a community by indirect methods is possible. Analysis of (dis-)similarity among communities presents an example of such possibilities.
+
+Function `csf()` in this package has been created to make paired comparison of the structure of different communities using several similarity index, conjugated with simple paired subtraction between variables that correspond to environmental factors. This function is useful for building linear regression or conducting another statistical analysis for identification of factors' impact on the community structure. The leading assumption is that if difference between factors explains dissimilarity between communities, then factors explain their structure.
+
+Additional functions were created for community similarity and diversity assessment and basic data transformation for comfortable analysis. This package provides abilities for easy calculating the next indices:
+
+* Similarity indices:
+  * presence-absence ("binary"): 
+    * Jaccard similarity index, 
+    * Sorensen similarity index, 
+    * Kulczinsky similarity index, 
+    * Dice association index, 
+    * Braun-Blanquet similarity index, 
+    * Baroni-Urbani and Buser similarity index, 
+    * Mountford similarity index;
+  * structural (which take into account species densities): 
+    * Bray-Curtis similarity index, 
+    * Canberra metric, 
+    * Squared Euclidian distance, 
+    * Renkonen similarity index, 
+    * Morisita similarity index, 
+    * logarithmically modified Sorensen similarity index;
+
+* Diversity indices: 
+    * Simpson diversity (or evenness) index, 
+    * Shannon diversity (or entropy) index, 
+    * Buzas and Gibson evenness, 
+    * Brillouin index, 
+    * Menhinick richness index, 
+    * Margalef richness index, 
+    * Equitability, 
+    * Berger-Parker dominance index,
+    * Hurlbert's probability of interspecific encounter (PIE),
+    * Hill's effective numbers.
+
+## Similarity indices
+
+Comparison in the \code{csf()} function can be done in two ways.
+
+If the species composition is under investigation, presence-absence indices may be preferred. The `csf` function can utilize Jaccard^[Jaccard P (1901) Etude comparative de la distribution florale dans une portion des Alpes et des Jura. Bulletin de la Societe Vaudoise des Sciences Naturelles, 37: 547–579] or Sorensen^[Sorensen TA (1948) A method of establishing groups of equal amplitude in plant sociology based on similarity of species content, and its application to analyses of the vegetation on Danish commons. K dan Vidensk Selsk Biol Skr 5:1-34] index as they are widely used. Other presence-absence similarity indices are available just as separate functions.
+Jaccard index is defined as $K_J = c/(a+b-c)$, Sorensen as $K_S = 2c/(a+b)$, where $a$ and $b$ are numbers of taxa in two communities, $c$ - number of taxa shared between communities.
+
+Other presence-absence similarity indices are available as well in the \code{ccompare()} function. Besides Jaccard and Sorensen, there are Kulczinsky^[Kulczynski S (1927) Die Pflanzenassoziationen der Pieninen, Bulletin Internationalde l'Academie A Polonaise des Sciences et des Lettres, Classe des Sciences, 1927] index $K_K = \frac{c}{2} (\frac{1}{a}+\frac{1}{b})$, Ochiai^[Ochiai A (1957) Zoogeographic studies on the soleoid fishes found in Japan and its neighbouring regions. Bull Jpn Soc Sci Fish 22: 526–530] index $K_O = \frac{c}{\sqrt{ab}}$, Dice^[Dice LR (1945) Measures of the amount of ecological association between species. Ecology 26 : 297-302] association index $K_D = c/min(a, b)$, Braun-Blanquet^[Braun-Blanquet J (1928) Pflanzensoziologie Grundzüge der Vegetationskunde. Berlin: Verlaq von Julius springer, 1928. 330 s] index $K_B = c/max(a, b)$, Baroni-Urbani and Buser^[Baroni-Urbani C, Buser MW (1976) Similarity of binary data. Syst Zool 25:251-259] index $K_{BU} = \frac{\sqrt{cd}+c}{\sqrt{cd}+a+b-c}$, Mountford^[Mountford MD (1962) An index of similarity and its application to classificatory problems. In: PW Murphy (ed), Progress in Soil Zoology. Butterworths, London, pp. 43-50] index $K_M = \frac{2c}{2ab+(a+b)c}$.
+
+It may be preferable to use indices that take into account species abundances: it can explain not just species composition, but also the whole community structure. All of those indices are available and as a separate function, and as method in the \code{csf()} function.
+
+Bray-Curtis^[Bray JR, Curtis JT (1957) An ordination of the upland forest communities in southern Wisconsin. Ecol Monogr 27: 325-349] similarity index $1 - BC = 1 - \frac{\Sigma |n_{1i}-n_{2i}|} {\Sigma(n_{1i}+n_{2i})}$ 
+
+Canberra^[Lance GN, Williams WT (1967) Mixed-data classificatory programs. I. Agglomerative systems. Aust Comput J 1: 15-20] metric $1 - CM = 1 - \frac{1}{a+b-c}  \Sigma\frac{|n_{1i}-n_{2i}|} {(n_{1i}+n_{2i})}$
+
+Squared Euclidian distance^[Wolda H (1981) Similarity indices, sample size and diversity. Oecologia, 50: 296-302] $1 - D^2 = 1 - \Sigma(p_{1i}-p_{2i})^2$
+
+Renkonen^[Renkonen O (1938) Statisch-ökologische Untersuchungen über die terrestrische Käferwelt der finnischen Bruchmoore. Ann. Zool. Soc. Bot. Fenn. Vanamo 6:1-231] similarity index $K_R = \Sigma min (p_{1i}, p_{2i})$
+
+Morisita^[Morisita M (1959) Measuring of interspecific association and similarity between communities. Mem Fac Sci Kyushu Univ, Ser E, Bio., 3:65-80] similarity index $C_{\lambda} = \frac{2 \Sigma n_{1i}n_{2i}}{(\lambda_1 \lambda_2)N_1 N_2}$ where $\lambda_j = \frac{\Sigma n_{ji} (n_{ji}-1)}{N_j(N_j - 1)}$
+
+logarithmically modified^[Dubovyk O, Kuzyo H (2017) Comparison of bird assemblage structure of cemeteries and parks in Lviv. Materials of the XIII scientific conference "Current state and biodiversity of ecosystems in Shatsky National Natural Park and other conservation areas". Lviv, 2017. P. 34-38 [In Ukrainian]] Sorensen similarity index $K_{lnS} = \frac{2 \Sigma \frac{ln (min (n_{ji})}{ln (max (n_{ji})}}{a+b}$
+
+where  $n_{ji}$ - number of individuals of i taxa in j community, $p_{ji}$ - percentage of individuals of i taxa in j community, $N_j$ - general number of all individuals in j community.
+
+## Selection of the similarity index
+
+Performance of different indices can be visualized using simulated vectors of values, i.e., a set of samples with information about number of three species. First sample is (100; 100; 100). Next is (99; 100; 100), (98; 100; 100), ... , (1; 100; 100), (0; 100; 100). Next density change considers the second species; (0; 99; 100), (0; 98; 100), ..., (0; 1; 100), (0; 0; 100); after this (0; 0; 99), ..., (0; 0; 1), and (0; 0; 0). In comparisons of every sample with the first, (100; 100; 100), we presume that every comparison similarity index will be lower than previous one and higher than next one.
+
+Evidently, presence-absence similarity indices for given samples will be step-like.
+
+```{r, fig.show='hold'}
+load("comparisons.Rda")
+plot(comparisons$jaccard,  type = "l", frame.plot = F, lwd = 1.5, main = "Jaccard index", xlab = "N", ylab = "Jaccard index")
+plot(comparisons$sorensen,  type = "l", frame.plot = F, lwd = 1.5, main = "Sorensen index", xlab = "N", ylab = "Sorensen index")
+```
+
+Nonetheless, plotting shows how similarity indices values can vary.
+
+```{r, fig.show='hold'}
+load("comparisons.Rda")
+plot(comparisons$morisita,  type = "l", frame.plot = F, lwd = 2, main = "Morisita index", xlab = "N", ylab = "Morisita index")
+plot(comparisons$sqeudist,  type = "l", frame.plot = F, lwd = 2, main = "Squared Euclidian distance", xlab = "N", ylab = "Squared Euclidian distance")
+plot(comparisons$renkonen,  type = "l", frame.plot = F, lwd = 2, main = "Renkonen index", xlab = "N", ylab = "Renkonen index")
+plot(comparisons$canber,  type = "l", frame.plot = F, lwd = 2, main = "Canberra metric", xlab = "N", ylab = "Canberra metric")
+plot(comparisons$log_sorensen, cex = 0.5, frame.plot = F, main = "LogSorensen index", xlab = "N", ylab = "Log Modified Sorensen Index")
+```
+
+Visually, the most linear is Bray-Curtis index, and Squared Bray-Curtis index.
+
+```{r, fig.show='hold'}
+load("comparisons.Rda")
+plot(comparisons$braycurtis,  type = "l", frame.plot = F, lwd = 2, main = "Bray-Curtis index", xlab = "N", ylab = "Bray-Curtis index")
+plot(comparisons$sbraycurtis,  type = "l", frame.plot = F, lwd = 2, main = "Squared Bray-Curtis index", xlab = "N", ylab = "Bray-Curtis index^2")
+```
+
+In any case, choice among similarity indices depends upon research questions.
+
+## Diversity menu
+
+Diversity indices can be analyzed as well. They are not so informative about community structure as similarity analysis is, but can be useful for studying much stronger factors impact.
+
+Several diversity indices are covered in this package:
+
+- Simpson diversity (or evenness) index
+
+Biased $1 - D = 1 - \Sigma{(\frac{n_i}{N})^2}$
+
+Unbiased $1 - D = 1 - \frac{\Sigma n_i (n_i-1)}{\Sigma N(N-1)}$
+
+- Shannon diversity (or entropy) index
+
+Biased $H = -\Sigma{\frac{n_i}{N}\ln\frac{n_i}{N}}$
+
+Unbiased $H_U = (-\Sigma{\frac{n_i}{N}\ln\frac{n_i}{N}})-\frac{S-1}{2N}$
+
+- Buzas and Gibson evenness $e^H/S$
+
+- Brillouin index $Br = \frac{\ln(N!)-\Sigma{\ln(n_i!)}}{N}$
+
+- Menhinick richness index $Me = \frac{S}{\sqrt{N}}$ 
+
+- Margalef richness index $Ma = \frac{S-1}{\ln{N}}$
+
+- Equitability $E = H/S$
+
+- Berger-Parker dominance index $BP = max(n_i)/N$
+
+- Hurlbert's probability of interspecific encounter $PIE = \frac{N}{N-1} 1 - \sum{(\frac{N_i}{N})^2}$
+
+- Hill's numbers $^{q} D = (\sum{p_i^q})^{1/(1-q)}$ with special case $^{1}D = \exp{(-\sum{p_i \ln{p_i}})}$
+
+where where $n_i$ is number of individuals of $i$ taxa and and $N$ is general number of all individuals in the sample so that $p_i = n_i/N$, $S$ is number of taxa.
