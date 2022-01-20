@@ -25,7 +25,7 @@ Numeric; named vectors of interegs that correspond to species abundances.
   }
 }
 \details{
-See the  \href{https://htmlpreview.github.io/?https://github.com/OleksiiDubovyk/ancends/blob/master/vignettes/ancends-vignette.html}{\code{comparison_test}} vignette in this package.
+See the  \href{https://htmlpreview.github.io/?https://github.com/OleksiiDubovyk/ancends/blob/master/vignettes/comparison_test.html}{\code{comparison_test}} vignette in this package.
 }
 \value{
 Named vector, two elements: metric value and p-level.
@@ -36,7 +36,7 @@ Note that if the p-value is smaller than 1/nperm, i.e., the observed value was b
 }
 
 \seealso{
-\href{https://htmlpreview.github.io/?https://github.com/OleksiiDubovyk/ancends/blob/master/vignettes/ancends-vignette.html}{\code{comparison_test}} (hyperlink)
+\href{https://htmlpreview.github.io/?https://github.com/OleksiiDubovyk/ancends/blob/master/vignettes/comparison_test.html}{\code{comparison_test}} (hyperlink)
 }
 \examples{
 lbt <- data.frame(a = c(1, 2, 3, 0, 0, 0), b = c(0, 0, 0, 1, 1, 1))
