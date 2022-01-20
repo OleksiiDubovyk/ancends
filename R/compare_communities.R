@@ -29,12 +29,14 @@ compare.communities <- function(com1, com2, nperm = 1000, distance = ancends::ja
     distr[i] <- resample.communities(lbt[,1], lbt[,2])
   }
   metric <- fnct(data.frame(com1 = com1, com2 = com2))
+  fname <- deparse(substitute(distance))
   rslt <- c(round(metric, 3), ifelse(sum(distr <= metric)/nperm == 0,
                                      paste("<", 1/nperm),
-                                     sum(distr <= metric)/nperm))
-  names(rslt) <- c("Metric", "p-value")
+                                     sum(distr <= metric)/nperm),
+            fname)
+  names(rslt) <- c("Metric", "p-value", "Distance")
   if (show.hist){
-    hist(distr, main = paste("Metric = ", rslt[1], "; p-value = ", rslt[2], sep = ""),
+    hist(distr, main = paste("Metric = ", rslt[1], "; p-value = ", rslt[2], " Distance ", rslt[3],  sep = ""),
          freq = F, xlab = "Metric", xlim = c(0, 1))
     lines(density(distr), col = "blue")
     abline(v = rslt[1], col = "red", lwd = 3)
